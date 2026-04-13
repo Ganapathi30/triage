@@ -6,7 +6,7 @@ def hybrid_triage(data, age):
     # -------------------------
     # STEP 1: HARD RULES
     # -------------------------
-    hard_result = check_rules(data)
+    hard_result = check_rules(data, age=age)
     if hard_result:
         return hard_result
 

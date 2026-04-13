@@ -1,5 +1,7 @@
-from langchain.agents import create_agent
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
+
+load_dotenv()
 
 FORMAT_PROMPT = """
 You are a medical triage formatter.
@@ -11,7 +13,7 @@ You will be given:
 Your job:
 Format output EXACTLY like below:
 
-🟥 / 🟨 / 🟩 Urgency Level: <value>
+Urgency Level: <value>
 
 Reasoning Summary:
 <clear short explanation based on symptoms>
@@ -27,17 +29,26 @@ RULES:
 - DO NOT add diagnosis
 - DO NOT invent symptoms
 - DO NOT add new symptoms
+- Avoid diagnosis statements
+- Avoid treatment instructions
+- Never suggest medication
 - Keep it short and clear
 - DO NOT remove disclaimer
 - Keep meaning EXACTLY the same
 """
 
 def create_formatter_agent():
-    llm = ChatOllama(model="llama3:8b", streaming=True)
+    llm = ChatOllama(model="qwen3.5",
+        base_url="https://ollama.com",)
+    return llm
 
-    agent = create_agent(
-        model=llm,
-        system_prompt=FORMAT_PROMPT
+
+def format_triage(llm, urgency, symptoms):
+    prompt = (
+        FORMAT_PROMPT
+        + "\n\n"
+        + f"Urgency: {urgency}\n"
+        + f"Symptoms: {symptoms}\n"
     )
-
-    return agent
+    response = llm.invoke(prompt)
+    return response.content

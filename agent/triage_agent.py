@@ -1,16 +1,16 @@
-from langchain.agents import create_agent
+from dotenv import load_dotenv
 from langchain_ollama import ChatOllama
+
 from agent.system_prompt import SYSTEM_PROMPT
 
-def create_triage_agent(checkpointer):
+load_dotenv()
+
+def create_triage_agent():
     llm = ChatOllama(
-        model = "llama3.2:1b",
-        temperature=0.1,
-    )
-
-    agent = create_agent(
-        model=llm,
+        model="qwen3.5",
+        base_url="https://ollama.com",
         system_prompt=SYSTEM_PROMPT,
+        temperature=0,
+        format="json",
     )
-
-    return agent
+    return llm
