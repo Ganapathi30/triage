@@ -1,0 +1,125 @@
+[
+  {
+    "name": "critical_chest_or_breathing",
+    "conditions": {
+      "symptoms_any": ["chest pain", "breathing difficulty"]
+    },
+    "urgency": "HIGH",
+    "reason": "Possible life-threatening symptoms"
+  },
+  {
+    "name": "unconscious_or_confusion",
+    "conditions": {
+      "symptoms_any": ["unconsciousness", "confusion"]
+    },
+    "urgency": "HIGH",
+    "reason": "Altered consciousness detected"
+  },
+  {
+    "name": "severe_bleeding",
+    "conditions": {
+      "symptoms_any": ["bleeding"],
+      "severity": "severe"
+    },
+    "urgency": "HIGH",
+    "reason": "Severe bleeding risk"
+  },
+  {
+    "name": "high_fever_with_red_flags",
+    "conditions": {
+      "symptoms_all": ["fever", "vomiting"],
+      "severity": "severe"
+    },
+    "urgency": "HIGH",
+    "reason": "Severe infection symptoms"
+  },
+  {
+    "name": "neurological_symptoms",
+    "conditions": {
+      "symptoms_any": ["dizziness", "blurred vision"],
+      "severity": "severe"
+    },
+    "urgency": "HIGH",
+    "reason": "Severe neurological symptoms"
+  },
+  {
+    "name": "elderly_moderate",
+    "conditions": {
+      "age_gt": 60,
+      "severity": "moderate"
+    },
+    "urgency": "HIGH",
+    "reason": "Elevated risk due to age"
+  },
+  {
+    "name": "prolonged_moderate_symptoms",
+    "conditions": {
+      "severity": "moderate",
+      "duration_days_gt": 5
+    },
+    "urgency": "HIGH",
+    "reason": "Symptoms persisting longer than expected"
+  },
+  {
+    "name": "multiple_symptoms_moderate",
+    "conditions": {
+      "severity": "moderate",
+      "symptoms_count_gte": 3
+    },
+    "urgency": "MEDIUM",
+    "reason": "Multiple moderate symptoms"
+  },
+  {
+    "name": "fever_duration",
+    "conditions": {
+      "symptoms_any": ["fever"],
+      "duration_days_gt": 3
+    },
+    "urgency": "MEDIUM",
+    "reason": "Fever lasting multiple days"
+  },
+  {
+    "name": "vomiting_or_dehydration",
+    "conditions": {
+      "symptoms_any": ["vomiting"],
+      "severity": "moderate"
+    },
+    "urgency": "MEDIUM",
+    "reason": "Risk of dehydration"
+  },
+  {
+    "name": "headache_dizziness_combo",
+    "conditions": {
+      "symptoms_all": ["headache", "dizziness"]
+    },
+    "urgency": "MEDIUM",
+    "reason": "Combination of neurological symptoms"
+  },
+  {
+    "name": "persistent_mild",
+    "conditions": {
+      "severity": "mild",
+      "duration_days_gt": 4
+    },
+    "urgency": "MEDIUM",
+    "reason": "Mild symptoms persisting too long"
+  },
+  {
+    "name": "single_mild_symptom",
+    "conditions": {
+      "severity": "mild",
+      "symptoms_count_lte": 1
+    },
+    "urgency": "LOW",
+    "reason": "Single mild symptom"
+  },
+  {
+    "name": "common_cold_pattern",
+    "conditions": {
+      "symptoms_any": ["cold", "cough"],
+      "severity": "mild"
+    },
+    "urgency": "LOW",
+    "reason": "Typical mild respiratory symptoms"
+  }
+]
