@@ -38,12 +38,15 @@ RULES:
 """
 
 def create_formatter_agent():
-    llm = ChatOllama(model="qwen3.5",
-        base_url="https://ollama.com",)
+    llm = ChatOllama(
+        model="qwen2.5:3b",
+        base_url="http://localhost:11434",
+        temperature=0,
+    )
     return llm
 
 
-def format_triage(llm, urgency, symptoms):
+def format_triage(llm, urgency, symptoms,):
     prompt = (
         FORMAT_PROMPT
         + "\n\n"

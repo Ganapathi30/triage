@@ -20,15 +20,6 @@ YOUR TASK
 4. If missing → ask ONE follow-up question.
 5. If sufficient → return structured symptom data.
 
-========================
-REQUIRED INFORMATION
-========================
-Try to collect:
-- Primary symptoms
-- Duration
-- Severity (Mild, Moderate, Severe)
-- Associated symptoms (if any like chest pain, breathing issues, bleeding etc)
-- Medical history(optional)
 
 ========================
 SYMPTOM NORMALIZATION RULES
