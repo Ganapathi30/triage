@@ -55,8 +55,16 @@ def check_rules(data, age=None):
             if symptom_count > conditions["symptoms_count_lte"]:
                 continue
 
+        urgency = rule["urgency"]
+        if urgency == "HIGH":
+            urgency = "High Urgency (Immediate escalation)"
+        elif urgency == "MEDIUM":
+            urgency = "Medium Urgency (Prompt attention)"
+        elif urgency == "LOW":
+            urgency = "Low Urgency (Routine)"
+
         return {
-            "urgency": rule["urgency"],
+            "urgency": urgency,
             "symptoms": data.get("symptoms", []),
             "reason": rule.get("reason"),
         }

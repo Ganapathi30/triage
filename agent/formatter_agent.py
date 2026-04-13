@@ -26,6 +26,10 @@ This is not a medical diagnosis. This is only a triage assessment.
 
 RULES:
 - DO NOT change urgency
+- Urgency must be exactly one of:
+    - Low Urgency (Routine)
+    - Medium Urgency (Prompt attention)
+    - High Urgency (Immediate escalation)
 - DO NOT add diagnosis
 - DO NOT invent symptoms
 - DO NOT add new symptoms
@@ -46,7 +50,7 @@ def create_formatter_agent():
     return llm
 
 
-def format_triage(llm, urgency, symptoms,):
+def format_triage(llm, urgency, symptoms):
     prompt = (
         FORMAT_PROMPT
         + "\n\n"

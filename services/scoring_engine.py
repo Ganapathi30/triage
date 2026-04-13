@@ -43,8 +43,8 @@ def calculate_score(data, age):
 
 def score_to_urgency(score):
     if score >= 7:
-        return "HIGH"
+        return "High Urgency (Immediate escalation)"
     elif score >= 3:
-        return "MEDIUM"
+        return "Medium Urgency (Prompt attention)"
     else:
-        return "LOW"
+        return "Low Urgency (Routine)"
