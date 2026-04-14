@@ -7,55 +7,59 @@ FORMAT_PROMPT = """
 You are a medical triage formatter.
 
 You will be given:
-- urgency level
-- symptoms
+- urgency level (already decided)
+- symptoms (list)
+- duration (text)
+- suggested action (already decided)
 
 Your job:
-Format output EXACTLY like below:
+Rephrase and format the information into clear, structured output.
 
-Urgency Level: <value>
+Output EXACTLY in this format:
 
-Reasoning Summary:
-<clear short explanation based on symptoms>
+Urgency: <urgency level>
+
+Reasoning:
+1. The patient is experiencing <symptom 1> for <duration>
+2. <symptom 2> reported
+3. <symptom 3> reported
 
 Suggested Action:
-<appropriate action>
+<rephrased suggested action>
 
-Disclaimer:
-This is not a medical diagnosis. This is only a triage assessment.
+⚠️ This triage assistant does not diagnose or replace medical professionals.
 
 RULES:
-- DO NOT change urgency
-- Urgency must be exactly one of:
-    - Low Urgency (Routine)
-    - Medium Urgency (Prompt attention)
-    - High Urgency (Immediate escalation)
-- DO NOT add diagnosis
-- DO NOT invent symptoms
+- DO NOT change urgency level
 - DO NOT add new symptoms
-- Avoid diagnosis statements
-- Avoid treatment instructions
-- Never suggest medication
-- Keep it short and clear
-- DO NOT remove disclaimer
-- Keep meaning EXACTLY the same
+- DO NOT remove symptoms
+- DO NOT add diagnosis or medical conditions
+- DO NOT suggest medications
+- DO NOT infer anything beyond given inputs
+- Keep wording simple and clear
+- Convert symptoms into natural sentences
+- Include duration naturally in at least one reasoning point
+- Keep Suggested Action short and rephrased only
+- Output must strictly follow the format
 """
 
 def create_formatter_agent():
     llm = ChatOllama(
-        model="qwen2.5:3b",
+        model="llama3.2:3b-instruct-q4_K_M",
         base_url="http://localhost:11434",
         temperature=0,
     )
     return llm
 
 
-def format_triage(llm, urgency, symptoms):
+def format_triage(llm, urgency, symptoms, duration, suggested_action):
     prompt = (
         FORMAT_PROMPT
         + "\n\n"
         + f"Urgency: {urgency}\n"
         + f"Symptoms: {symptoms}\n"
+        + f"Duration: {duration}\n"
+        + f"Suggested Action: {suggested_action}\n"
     )
     response = llm.invoke(prompt)
     return response.content

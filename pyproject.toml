@@ -11,4 +11,5 @@ dependencies = [
     "langgraph[postgres]>=1.1.6",
     "psycopg[binary]>=3.3.3",
     "python-dotenv>=1.2.2",
+    "streamlit>=1.37.0",
 ]
