@@ -1,6 +1,4 @@
 import time
-import uuid
-import re
 
 import streamlit as st
 
@@ -8,132 +6,28 @@ from agent.triage_agent import create_triage_agent
 from agent.formatter_agent import create_formatter_agent, format_triage
 from services.extractor import parse_llm_output
 from services.triage_engine import hybrid_triage
-from core.state import init_state, update_state
+from core.state import update_state
 from core.logic import is_enough_info, get_followup_question
+from services.helpers import (
+    build_extraction_prompt,
+    sanitize_extraction,
+    ensure_sessions,
+    get_active_session,
+    render_sidebar,
+    next_patient_field,
+    patient_prompt,
+    enqueue_symptom_prompt,
+    suggested_action_for_urgency,
+    stream_text,
+)
 
 
 APP_TITLE = "Triage Agent"
 
 
-def build_extraction_prompt(user_input):
-    return (
-        "Extract symptoms, duration, and severity from the user input.\n"
-        "Return ONLY valid JSON for this schema:\n"
-        "{\n"
-        "  \"symptoms\": [\"...\"],\n"
-        "  \"duration\": \"...\" or null,\n"
-        "  \"severity\": \"Mild|Moderate|Severe\" or null\n"
-        "}\n"
-        "Do not add any other text.\n\n"
-        f"User input: {user_input}"
-    )
-
-
-def sanitize_extraction(user_input, data):
-    if not isinstance(data, dict):
-        return data
-    if not re.search(r"\b(mild|moderate|severe)\b", user_input, re.IGNORECASE):
-        data["severity"] = None
-    return data
-
-
 @st.cache_resource
 def get_agents():
     return create_triage_agent(), create_formatter_agent()
-
-
-def new_session():
-    session_id = str(uuid.uuid4())[:8]
-    session = {
-        "id": session_id,
-        "patient_id": "",
-        "age": None,
-        "gender": "",
-        "pending_patient_field": None,
-        "state": init_state(),
-        "messages": [],
-    }
-    return session
-
-
-def ensure_sessions():
-    if "sessions" not in st.session_state:
-        st.session_state.sessions = [new_session()]
-        st.session_state.active_session_id = st.session_state.sessions[0]["id"]
-
-
-def get_active_session():
-    for session in st.session_state.sessions:
-        if session["id"] == st.session_state.active_session_id:
-            return session
-    session = new_session()
-    st.session_state.sessions.append(session)
-    st.session_state.active_session_id = session["id"]
-    return session
-
-
-def render_sidebar():
-    st.sidebar.title("Sessions")
-
-    if st.sidebar.button("+ New session"):
-        session = new_session()
-        st.session_state.sessions.append(session)
-        st.session_state.active_session_id = session["id"]
-
-    session_labels = {
-        session["id"]: session["patient_id"] or f"Session {index + 1}"
-        for index, session in enumerate(st.session_state.sessions)
-    }
-
-    selected = st.sidebar.radio(
-        "Select session",
-        options=[session["id"] for session in st.session_state.sessions],
-        format_func=lambda session_id: session_labels.get(session_id, session_id),
-    )
-    st.session_state.active_session_id = selected
-
-
-def next_patient_field(session):
-    if not session.get("patient_id"):
-        return "patient_id"
-    if session.get("age") is None:
-        return "age"
-    if not session.get("gender"):
-        return "gender"
-    return None
-
-
-def patient_prompt(field):
-    if field == "patient_id":
-        return "Please provide the patient ID."
-    if field == "age":
-        return "Please provide the patient's age."
-    if field == "gender":
-        return "Please provide the patient's gender."
-    return None
-
-
-def enqueue_symptom_prompt(session):
-    prompt = "What symptoms is the patient experiencing?"
-    session["messages"].append({"role": "assistant", "content": prompt})
-    with st.chat_message("assistant"):
-        st.write_stream(stream_text(prompt))
-
-
-def suggested_action_for_urgency(urgency):
-    urgency_text = str(urgency).lower()
-    if "high" in urgency_text:
-        return "Seek immediate medical attention. Contact emergency services or the nearest hospital."
-    if "medium" in urgency_text:
-        return "Seek medical attention within few hours or the next few days. Contact a clinic or urgent care for guidance."
-    return "Monitor symptoms and consider scheduling a routine checkup."
-
-
-def stream_text(text, delay=0.01):
-    for char in text:
-        yield char
-        if delay:
-            time.sleep(delay)
 
 
 st.set_page_config(page_title=APP_TITLE, layout="wide")
@@ -247,9 +141,10 @@ if user_input:
             if not is_enough_info(active_session["state"]):
                 question = get_followup_question(active_session["state"])
                 active_session["messages"].append({"role": "assistant", "content": question})
-                with st.chat_message("assistant"):
-                    st.write_stream(stream_text(question))
-                    st.caption(f"Extraction time: {extraction_elapsed:.2f}s")
+                followup_payload = {
+                    "text": question,
+                    "extraction_elapsed": extraction_elapsed,
+                }
                 st.session_state.pending_user_input = None
                 st.session_state.busy = False
                 st.rerun()
@@ -269,11 +164,20 @@ if user_input:
 
             active_session["messages"].append({"role": "assistant", "content": formatted})
 
-            with st.chat_message("assistant"):
-                st.write_stream(stream_text(formatted))
-                st.caption(
-                    f"Extraction time: {extraction_elapsed:.2f}s | Format time: {format_elapsed:.2f}s"
-                )
+            response_payload = {
+                "text": formatted,
+                "extraction_elapsed": extraction_elapsed,
+                "format_elapsed": format_elapsed,
+            }
+
+        with st.chat_message("assistant"):
+            st.write_stream(stream_text(response_payload["text"]))
+            st.caption(
+                "Extraction time: "
+                f"{response_payload['extraction_elapsed']:.2f}s | "
+                "Format time: "
+                f"{response_payload['format_elapsed']:.2f}s"
+            )
     finally:
         st.session_state.pending_user_input = None
         st.session_state.busy = False

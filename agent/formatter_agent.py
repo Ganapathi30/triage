@@ -21,6 +21,7 @@ Urgency: <urgency level>
 
 Reasoning:
 1. The patient is experiencing <symptom 1> for <duration>
+IF NO ADDITIONAL SYMPTOMS LEAVE IT.
 2. <symptom 2> reported
 3. <symptom 3> reported
 
